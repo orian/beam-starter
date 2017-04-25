@@ -33,9 +33,9 @@ public class WordCount {
 
   public static class ExtractWordsFn extends DoFn<String, String> {
     private final Aggregator<Long, Long> emptyLines =
-        createAggregator("emptyLines", new Sum.SumLongFn());
+        createAggregator("emptyLines", Sum.ofLongs());
 
-    @Override
+    @ProcessElement
     public void processElement(ProcessContext c) {
       if (c.element().trim().isEmpty()) {
         emptyLines.addValue(1L);
@@ -55,16 +55,15 @@ public class WordCount {
 
   public static class CountWords extends PTransform<PCollection<String>,
                     PCollection<KV<String, Long>>> {
-    @Override
-    public PCollection<KV<String, Long>> apply(PCollection<String> lines) {
 
+    public PCollection<KV<String, Long>> expand(PCollection<String> lines) {
       // Convert lines of text into individual words.
       PCollection<String> words = lines.apply(
-          ParDo.of(new ExtractWordsFn()));
+              ParDo.of(new ExtractWordsFn()));
 
       // Count the number of times each word occurs.
       PCollection<KV<String, Long>> wordCounts =
-          words.apply(Count.<String>perElement());
+              words.apply(Count.<String>perElement());
 
       return wordCounts;
     }

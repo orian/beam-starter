@@ -6,13 +6,13 @@
 
   <groupId>com.dataradiant.beam</groupId>
   <artifactId>beam-starter</artifactId>
-  <version>0.2</version>
+  <version>0.6</version>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <flink.version>1.0.3</flink.version>
-    <beam.version>0.2.0-incubating-SNAPSHOT</beam.version>
+    <flink.version>1.2.0</flink.version>
+    <beam.version>0.6.0</beam.version>
   </properties>
 
   <dependencies>
@@ -21,50 +21,91 @@
       <artifactId>beam-runners-flink_2.10</artifactId>
       <version>${beam.version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.apache.beam</groupId>
-      <artifactId>beam-runners-flink_2.10-examples</artifactId>
-      <version>${beam.version}</version>
-    </dependency>
+
     <dependency>
       <groupId>org.apache.beam</groupId>
       <artifactId>beam-sdks-java-io-kafka</artifactId>
       <version>${beam.version}</version>
     </dependency>
+
+    <!--<dependency>-->
+      <!--<groupId>org.apache.flink</groupId>-->
+      <!--<artifactId>flink-runtime_2.10</artifactId>-->
+      <!--<version>${flink.version}</version>-->
+    <!--</dependency>-->
+
+    <!--<dependency>-->
+      <!--<groupId>org.apache.flink</groupId>-->
+      <!--<artifactId>flink-java</artifactId>-->
+      <!--<version>${flink.version}</version>-->
+      <!--<scope>runtime</scope>-->
+      <!--<optional>true</optional>-->
+    <!--</dependency>-->
+
+    <!--<dependency>-->
+      <!--<groupId>org.apache.flink</groupId>-->
+      <!--<artifactId>flink-core</artifactId>-->
+      <!--<version>${flink.version}</version>-->
+      <!--<scope>runtime</scope>-->
+      <!--<optional>true</optional>-->
+    <!--</dependency>-->
+
+    <!--<dependency>-->
+      <!--<groupId>org.apache.flink</groupId>-->
+      <!--<artifactId>flink-streaming-java_2.10</artifactId>-->
+      <!--<version>${flink.version}</version>-->
+      <!--<scope>runtime</scope>-->
+      <!--<optional>true</optional>-->
+    <!--</dependency>-->
+
+    <!--<dependency>-->
+      <!--<groupId>org.apache.flink</groupId>-->
+      <!--<artifactId>flink-clients_2.10</artifactId>-->
+      <!--<version>${flink.version}</version>-->
+      <!--<scope>runtime</scope>-->
+      <!--<optional>true</optional>-->
+    <!--</dependency>-->
   </dependencies>
 
   <build>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
-        <version>2.4.1</version>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.6.1</version>
+        <configuration>
+          <source>1.8</source>
+          <target>1.8</target>
+          <testSource>1.8</testSource>
+          <testTarget>1.8</testTarget>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>3.0.0</version>
+        <configuration>
+          <!-- get all project dependencies -->
+          <descriptorRefs>
+            <descriptorRef>jar-with-dependencies</descriptorRef>
+          </descriptorRefs>
+          <!-- MainClass in mainfest make a executable jar -->
+          <archive>
+            <manifest>
+              <mainClass>com.dataradiant.beam.examples.WordCount</mainClass>
+            </manifest>
+          </archive>
+
+        </configuration>
         <executions>
           <execution>
+            <id>make-assembly</id>
+            <!-- bind to the packaging phase -->
             <phase>package</phase>
             <goals>
-              <goal>shade</goal>
+              <goal>single</goal>
             </goals>
-            <configuration>
-              <transformers>
-                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                  <mainClass>com.dataradiant.beam.examples.StreamWordCount</mainClass>
-                </transformer>
-              </transformers>
-              <artifactSet>
-                <excludes>
-                  <exclude>org.apache.flink:force-shading</exclude>
-                  <exclude>org.apache.flink:flink-clients_2.10</exclude>
-                  <exclude>org.apache.flink:flink-optimizer_2.10</exclude>
-                  <exclude>org.apache.flink:flink-java</exclude>
-                  <exclude>org.apache.flink:flink-shaded-hadoop2</exclude>
-                  <exclude>org.apache.flink:flink-streaming-java_2.10</exclude>
-                  <exclude>org.apache.flink:flink-core</exclude>
-                  <exclude>org.apache.flink:flink-annotations</exclude>
-                  <exclude>org.apache.flink:flink-runtime_2.10</exclude>
-                </excludes>
-              </artifactSet>
-            </configuration>
           </execution>
         </executions>
       </plugin>
